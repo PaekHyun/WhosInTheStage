@@ -1,11 +1,37 @@
 import sys
 import cv2
 import numpy as np
+import os
 from ultralytics import YOLO
 import pygame
 from PyQt5.QtWidgets import (QApplication, QWidget, QPushButton, QVBoxLayout, 
                              QHBoxLayout, QLabel, QFileDialog, QFrame)
 from PyQt5.QtCore import Qt
+
+# pyinstaller build command :
+# pyinstaller WhosInTheStage.py ^
+#  --onefile ^
+#  --noconsole ^
+#  --collect-all torch ^
+#  --collect-all ultralytics ^
+#  --add-data "yolov8n-seg.pt;."
+
+
+
+# =========================
+# 웹캠 자동 탐색
+# =========================
+def find_camera(max_index=5):
+    import cv2
+    # for i in range(max_index):
+    for i in [1, 0, 2, 3, 4] :
+        cap = cv2.VideoCapture(i)
+        if cap.isOpened():
+            cap.release()
+            return i
+        cap.release()
+    return None
+
 
 class VirtualBackgroundApp(QWidget):
     def __init__(self):
@@ -13,6 +39,8 @@ class VirtualBackgroundApp(QWidget):
         self.mp3_path = ""
         self.jpg_path = ""
         self.initUI()
+        
+
 
     def initUI(self):
         self.setWindowTitle('YOLO 실시간 배경 합성 매니저')
@@ -54,13 +82,13 @@ class VirtualBackgroundApp(QWidget):
         self.setLayout(main_layout)
 
     def select_mp3(self):
-        file, _ = QFileDialog.getOpenFileName(self, "음악 파일 선택", "", "Audio Files (*.mp3)")
+        file, _ = QFileDialog.getOpenFileName(self, "음악 파일 선택", os.getcwd(), "Audio Files (*.mp3)")
         if file:
             self.mp3_path = file
             self.label_mp3.setText(file.split('/')[-1])
 
     def select_jpg(self):
-        file, _ = QFileDialog.getOpenFileName(self, "배경 이미지 선택", "", "Image Files (*.jpg *.jpeg)")
+        file, _ = QFileDialog.getOpenFileName(self, "배경 이미지 선택", os.getcwd(), "Image Files (*.jpg *.jpeg)")
         if file:
             self.jpg_path = file
             self.label_jpg.setText(file.split('/')[-1])
@@ -81,7 +109,13 @@ class VirtualBackgroundApp(QWidget):
         pygame.mixer.music.play()
 
         background_img = cv2.imread(jpg)
-        cam = cv2.VideoCapture(1)
+        
+        cam_index = find_camera()
+        if cam_index is None:
+            print("❌ 카메라를 찾을 수 없음")
+            return
+        
+        cam = cv2.VideoCapture(cam_index)
 
         width = int(cam.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cam.get(cv2.CAP_PROP_FRAME_HEIGHT))
@@ -97,6 +131,8 @@ class VirtualBackgroundApp(QWidget):
 
             ret, frame = cam.read()
             if not ret: break
+            
+            frame = cv2.flip(frame, 1)
 
             results = model.predict(frame, classes=0, conf=0.5, verbose=False)
             combined_img = background_img.copy()
