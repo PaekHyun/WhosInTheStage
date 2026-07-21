@@ -14,22 +14,7 @@
 | 🖼️ 배경 합성 | 선택한 JPG 이미지를 배경으로 실시간 합성 |
 | 🎵 오디오 재생 | MP3 파일 재생과 동기화 — 음악이 끝나면 자동 종료 |
 | 📺 전체화면 출력 | OpenCV 전체화면 모드로 몰입감 있는 시청 경험 |
-| 🎛️ GUI 매니저 | PyQt5 기반 파일 선택 UI — 드래그 없이 클릭만으로 설정 |
-
----
-
-## 📸 스크린샷
-
-```
-┌──────────────────────────────────────────────┐
-│  🎵 음악 선택 (.mp3)    ┌──────────────┐    │
-│  [selected.mp3]          │              │    │
-│                          │  🚀 프로그램  │    │
-│  🖼️ 배경 선택 (.jpg)    │    실행      │    │
-│  [stage.jpg]             │              │    │
-│                          └──────────────┘    │
-└──────────────────────────────────────────────┘
-```
+| 🎛️ GUI 매니저 | PyQt5 기반 파일 선택 UI — 클릭만으로 설정 |
 
 ---
 
@@ -60,21 +45,12 @@ pip install -r requirements.txt
 
 ### 3. YOLO 모델 다운로드
 
-YOLOv8n-seg 가중치 파일이 필요합니다. 자동 다운로드되지 않는 경우:
-
 ```bash
-# Ultralytics에서 자동 다운로드되거나, 수동으로 아래 경로에 배치
-# 프로젝트 루트에 yolov8n-seg.pt 파일 위치
+# Ultralytics에서 자동 다운로드되거나, 수동으로 프로젝트 폴더에 배치
 wget https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n-seg.pt
 ```
 
 ### 4. 실행
-
-```bash
-python main.py
-```
-
-또는 기존 진입점:
 
 ```bash
 python WhosInTheStage.py
@@ -86,23 +62,18 @@ python WhosInTheStage.py
 
 ```
 WhosInTheStage/
-├── main.py              # 애플리케이션 진입점
-├── config.py            # 상수 및 설정 (모델 경로, UI 설정 등)
-├── camera.py            # 웹캠 자동 탐지 유틸리티
-├── processor.py         # YOLO 세그멘테이션 + 배경 합성 로직
-├── gui.py               # PyQt5 GUI (파일 선택 + 실행)
-├── WhosInTheStage.py    # 기존 진입점 (하위 호환)
-├── requirements.txt     # Python 의존성
-├── .gitignore           # Git 무시 규칙
-├── README.md             # 프로젝트 문서
-└── yolov8n-seg.pt       # YOLO 모델 가중치 (별도 다운로드)
+├── WhosInTheStage.py   # 단일 파일 (전체 로직 포함)
+├── yolov8n-seg.pt      # YOLO 모델 가중치 (별도 다운로드)
+├── requirements.txt    # Python 의존성
+├── .gitignore          # Git 무시 규칙
+└── README.md           # 프로젝트 문서
 ```
 
 ---
 
 ## 🎮 사용법
 
-1. **앱 실행** → `python main.py`
+1. **앱 실행** → `python WhosInTheStage.py`
 2. **🎵 음악 선택** → MP3 파일 선택
 3. **🖼️ 배경 선택** → JPG/JPEG 배경 이미지 선택
 4. **🚀 프로그램 실행** → 전체화면 실시간 합성 시작
@@ -117,7 +88,7 @@ WhosInTheStage/
 
 ```bash
 pip install torch==2.8.0
-pyinstaller main.py ^
+pyinstaller WhosInTheStage.py ^
   --onefile ^
   --noconsole ^
   --collect-all torch ^
@@ -129,7 +100,7 @@ pyinstaller main.py ^
 
 ## ⚙️ 설정 변경
 
-`config.py`에서 주요 설정을 변경할 수 있습니다:
+`WhosInTheStage.py` 상단의 상수를 수정하여 설정을 변경할 수 있습니다:
 
 | 설정 | 기본값 | 설명 |
 |------|--------|------|
